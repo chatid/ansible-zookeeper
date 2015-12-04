@@ -1,0 +1,77 @@
+---
+# tasks file for chatid.zookeeper
+- name: install java
+  apt:
+    name: openjdk-7-jre-headless
+    update_cache: yes
+    cache_valid_time: 86400
+
+- name: create user
+  user:
+    name: zookeeper
+    createhome: no
+    system: yes
+
+- name: ensure folders
+  file:
+    path: '{{ item }}'
+    state: directory
+    owner: zookeeper
+    group: zookeeper
+  with_items:
+    - '{{ zookeeper_data_dir }}'
+    - '{{ zookeeper_log_dir }}'
+    - '{{ zookeeper_conf_dir }}'
+
+- name: get zookeeper file(s)
+  get_url:
+    url: '{{ zookeeper_apache_mirror }}/zookeeper/zookeeper-{{ zookeeper_version }}/zookeeper-{{ zookeeper_version }}.tar.gz'
+    dest: /tmp/zookeeper-{{ zookeeper_version }}.tar.gz
+  retries: 5
+  delay: 10
+  register: get_url_result
+
+- name: extract zookeeper file(s)
+  unarchive:
+    src: /tmp/zookeeper-{{ zookeeper_version }}.tar.gz
+    dest: /tmp
+    copy: no
+  register: unarchive_result
+  when: get_url_result.changed
+
+- name: move into place
+  command: mv /tmp/zookeeper-{{ zookeeper_version }} /opt/zookeeper
+  when: unarchive_result.changed
+
+- name: ensure ownership
+  command: chown -R zookeeper:zookeeper /opt/zookeeper
+  changed_when: False
+
+- name: render config
+  template:
+    src: '{{ item }}'
+    dest: '{{ zookeeper_conf_dir }}/{{ item }}'
+    owner: zookeeper
+    group: zookeeper
+  with_items:
+    - zoo.cfg
+    - log4j.properties
+    - configuration.xsl
+
+- name: render id file
+  copy:
+    dest: '{{ zookeeper_data_dir }}/myid'
+    content: '{{ zookeeper_id }}'
+    owner: zookeeper
+    group: zookeeper
+
+- name: render upstart config
+  template:
+    src: upstart.conf
+    dest: /etc/init/zookeeper.conf
+
+- name: enable service
+  service:
+    name: zookeeper
+    state: started
+

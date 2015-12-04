@@ -1,0 +1,22 @@
+---
+# defaults file for chatid.zookeeper
+zookeeper_apache_mirror: http://apache.mirror.anlx.net
+zookeeper_version: 3.4.7
+zookeeper_data_dir: /var/lib/zookeeper
+zookeeper_log_dir: /var/log/zookeeper
+zookeeper_conf_dir: /etc/zookeeper
+zookeeper_log_level: INFO
+zookeeper_log_appenders: [ROLLINGFILE, SYSLOG]
+zookeeper_log_console_threshold: DEBUG
+zookeeper_log_rollingfile_threshold: INFO
+zookeeper_log_syslog_threshold: ERROR
+zookeeper_tick_time: 2000
+zookeeper_init_limit: 10
+zookeeper_sync_limit: 5
+zookeeper_client_port: 2181
+zookeeper_max_client_connections: 60
+zookeeper_autopurge_snap_retain_count: 3
+zookeeper_autopurge_purge_interval: 1
+zookeeper_id: '{{ zookeeper_hosts.index(ansible_eth0.ipv4.address) + 1 }}'
+zookeeper_hosts:
+ - '{{ ansible_eth0.ipv4.address }}'

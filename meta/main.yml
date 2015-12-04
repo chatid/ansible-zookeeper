@@ -1,0 +1,14 @@
+---
+galaxy_info:
+  author: Matt Wright <wright@chatid.com>
+  description: Installs and configures Apache Zookeeper <https://zookeeper.apache.org/>
+  company: ChatID Inc.
+  license: MIT
+  platforms:
+    - name: Ubuntu
+      versions:
+        - trusty
+  categories:
+    - clustering
+    - service discovery
+dependencies: []
